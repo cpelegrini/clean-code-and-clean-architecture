@@ -1,55 +1,46 @@
 
 export default class Cpf {
-   cpfNumbers: number[];
-   cpfVerificationDigits: number[];
+   private DIGIT_10 = 10;
+   private DIGIT_11 = 11;
 
-   constructor(){
-      this.cpfNumbers = [];
-      this.cpfVerificationDigits = [];
-   }
-
-   getNumbersArray = (cpf:string) => {
+   removeNonDigits = (cpf:string):string => {
       let numbers: string = cpf.replace(/\D/gm, '');
-      if(!numbers || numbers.length != 11)  throw Error('Invalid CPF');
-      this.cpfNumbers = numbers.split('').map(n => parseInt(n));
-      this.cpfVerificationDigits = [this.cpfNumbers.pop() ?? 0, this.cpfNumbers.pop() ?? 0].reverse(); 
+      return numbers;
    }
 
-   validateRepeatedSameNumber = () => {
-      if(this.cpfNumbers.every(c => c === this.cpfNumbers.at(0)) &&
-         this.cpfVerificationDigits.every(c => c === this.cpfNumbers.at(0))
-      ) throw new Error('Invalid CPF')
+   isAllDigitsEquals = (cpf: string) => {
+      const [firstNumber] = cpf;
+      return [...cpf].every(digit => digit === firstNumber);
    }
 
-   calculateDigit = (numbers: number[]) => {
-      let calculatedList = numbers.length === 9 
-         ? [10,9,8,7,6,5,4,3,2]
-         : [11,10,9,8,7,6,5,4,3,2];
-      calculatedList = calculatedList.map((item,ind)=> 
-         item * (numbers.at(ind) ?? 0)
-      );
-      let sum = calculatedList.reduce((sum, cur)=> sum + cur);
+   isValidLength = (cpf: string): boolean => cpf.length !== 11;
+
+   calculateDigit = (cpf: string, cpfDigit: number) => {
+      let numbers = [...cpf].map(Number);
+      let sum = 0;
+      for(let position=cpfDigit; position>1; position--){
+         sum += position * (numbers.at(cpfDigit - position) ?? 0); 
+      }
       let rest = sum % 11;
       const digit = rest < 2 ? 0 : 11 - rest;
       return digit;
    }
 
-   validate = (cpf: string) => {
-      console.log(this.generate())
-      this.getNumbersArray(cpf)
-      this.validateRepeatedSameNumber();
-      let digit1 = this.calculateDigit(this.cpfNumbers); 
-      let digit2 = this.calculateDigit([...this.cpfNumbers, digit1]);
-      return this.cpfVerificationDigits.at(0) === digit1 && 
-         this.cpfVerificationDigits.at(1) === digit2;
+   isValid = (cpf: string) => {
+      if(!cpf) return false;
+      cpf = this.removeNonDigits(cpf)
+      if(this.isAllDigitsEquals(cpf)) return false;
+      let digit10 = this.calculateDigit(cpf, this.DIGIT_10); 
+      let digit11 = this.calculateDigit(cpf, this.DIGIT_11);
+      const lastDigits = cpf.slice(-2);
+      return lastDigits === `${digit10}${digit11}`;
    }
 
    generate = () => {
-      const ramdom = Math.floor(Math.random() * 555555555).toString();
-      const numbers = ramdom.split('').map(item=> parseInt(item));
-      const digit1 = this.calculateDigit(numbers);
-      const digit2 = this.calculateDigit([...numbers, digit1]);
-      return [...numbers, digit1, digit2].join('');
+      const ramdomCpf = Math.floor(Math.random() * 555555555).toString();
+      const digit10 = this.calculateDigit(ramdomCpf, this.DIGIT_10);
+      const digit11 = this.calculateDigit(`${ramdomCpf}${digit10}`, this.DIGIT_11);
+      return `${ramdomCpf}${digit10}${digit11}`;
    }
 
 }
