@@ -19,7 +19,7 @@ export default class Cpf {
       let numbers = [...cpf].map(Number);
       let sum = 0;
       for(let position=cpfDigit; position>1; position--){
-         sum += position * (numbers.at(cpfDigit - position) ?? 0); 
+         sum += position * (numbers.at(cpfDigit - position) ?? 0);; 
       }
       let rest = sum % 11;
       const digit = rest < 2 ? 0 : 11 - rest;

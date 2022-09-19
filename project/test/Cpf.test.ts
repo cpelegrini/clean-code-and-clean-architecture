@@ -1,6 +1,6 @@
 import Cpf  from "../src/Cpf";
 describe('Cpf', ()=>{
-
+;
     test("Should validate cpf with mask", function () {
         expect(new Cpf().isValid('111.444.777-35')).toBeTruthy();
     });
@@ -16,6 +16,7 @@ describe('Cpf', ()=>{
     test("Should not validate undefined cpf", function () {
         expect(new Cpf().isValid('')).toBeFalsy()
     });
+
 
    test("Should not validate invalid size cpf", function () {
         expect(new Cpf().isValid('1231231231231')).toBeFalsy()
